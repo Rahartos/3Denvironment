@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon.js STL Loader</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+</head>
+<body>
+    <canvas id="renderCanvas" style="width: 100vw; height: 100vh;"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        var createScene = function() {
+            var scene = new BABYLON.Scene(engine);
+
+            var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 4, Math.PI / 3, 12, BABYLON.Vector3.Zero(), scene);
+            camera.setTarget(BABYLON.Vector3.Zero());
+            camera.attachControl(canvas, true);
+
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0));
+            light.intensity = 0.7;
+
+            // Load STL file from local server
+            BABYLON.SceneLoader.ImportMesh(
+                "", 
+                "http://localhost:8000/", // Change if using Live Server
+                "n_10.stl", // STL file name (must be in the same folder)
+                scene, 
+                function (meshes) {
+                    meshes.forEach(mesh => {
+                        mesh.position = new BABYLON.Vector3(0, 1, 0);
+                        mesh.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1); // Adjust size
+                    });
+                }
+            );
+
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 6, height: 6}, scene);
+
+            return scene;
+        };
+
+        var scene = createScene();
+        engine.runRenderLoop(function() {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function() {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
